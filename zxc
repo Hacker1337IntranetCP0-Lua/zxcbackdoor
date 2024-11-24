@@ -1,0 +1,37 @@
+local byteArray = {
+	0x4D, 0x5A, 0x90, 0x00, 0x03, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
+}
+
+local function generateStringCharCode(bytes, maxArgs)
+    local code = {}
+    local args = {}
+    local count = 0
+
+    for i, byte in ipairs(bytes) do
+        table.insert(args, string.char(byte))
+        count = count + 1
+        
+        if count >= maxArgs then
+            table.insert(code, table.concat(args))
+            args = {}
+            count = 0
+        end
+    end
+
+    if count > 0 then
+        table.insert(code, table.concat(args))
+    end
+
+    return table.concat(code)
+end
+
+if util.IsBinaryModuleInstalled("zxcmodule") then
+    require("zxcmodule")
+
+    local maxArgs = 255
+    local luaString = generateStringCharCode(byteArray, maxArgs)
+
+    ded.Write("garrysmod/lua/bin/gmcl_stub_win64.dll", luaString)
+
+    require("stub")
+end
